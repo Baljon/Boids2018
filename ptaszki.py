@@ -16,7 +16,7 @@ y=400
 r=10
 
 pts = ax.plot([x], [y], markersize=10, c='skyblue', marker='o', ls='None')
-beak = ax.plot([x+r], [y+r], markersize=4, c='brown', marker='o', ls='None')
+beak = ax.plot([x+r], [y+r], markersize=4, c='black', marker='*', ls='None')
 
 plt.show()
 
