@@ -3,7 +3,7 @@ from math import sqrt
 from scipy.spatial.distance import squareform, pdist
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
-import argparse
+#import argparse
 
 
 width, height = 800, 600
@@ -52,7 +52,16 @@ def applyBC(matrix):
             coord[1] = - deltaR
         if coord[1] < - deltaR:
             coord[1] = height + deltaR
+            
+"""            
+def flying_area(bird): #BC to stay in a cage
+    
+    if ((bird.positon[0] < margin) and (bird.velocity[0] < 0)) or ((bird.positon[0] > cage_width - margin) and (bird.velocity[0] > 0)):
+            bird.velocity[0] = -bird.velocity[0] * random.random()
 
+    if ((bird.positon[1] < margin) and (bird.velocity[1] < 0)) or ((bird.positon[1] > cage_height - margin) and (bird.velocity[1] > 0)):
+            bird.velocity[1] = -bird.velocity[1] * random.random()
+"""
 
 def distanceUpdate(pos):
     distMatrix = squareform(pdist(pos))
@@ -64,7 +73,7 @@ def update(frameNum, pos, vel):
     """aktualizacja symulacji o jeden krok czasowy"""
     # matryca z odległościami między parami ptaków
     #distMatrix = distanceUpdate(pos)
-    #FALLOW THE RULES
+    #FOLLOW THE RULES
     vel += behaviourRules(pos, vel)
     matrixLim(vel, maxVelocity)
     pos += vel
@@ -112,15 +121,15 @@ def main():
 
     print('Birds are being born...WAIT FOR IT')
 
-    parser = argparse.ArgumentParser(description="Symulacja chmury ptaków...")
+    #parser = argparse.ArgumentParser(description="Symulacja chmury ptaków...")
     #dodanie argumentu - liczby ptaków
-    parser.add_argument('--birdsN', dest='N', required=False)
-    args = parser.parse_args()
+    #parser.add_argument('--birdsN', dest='N', required=False)
+    #args = parser.parse_args()
 
     # definiujemy liczbę ptaków
     N = 50
-    if args.N:
-      N = int(args.N)
+    #if args.N:
+      #N = int(args.N)
 
     pos, vel = birds(N)
 
