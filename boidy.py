@@ -128,11 +128,13 @@ def main():
     # rysowanie ptaków
     #fig = plt.figure()
     #plt.axes(xlim=(0, width), ylim=(0, height))
-    for _ in range(1):
+    
+    #to jest do rysowania 'poklatkowo'
+    #for _ in range(1):
         #plt.axes(xlim=(0, width), ylim=(0, height))
-        plt.scatter(pos[:, 0], pos[:, 1])
-        plt.show()
-        pos, vel = update(pos, vel)
+        #plt.scatter(pos[:, 0], pos[:, 1])
+        #plt.show()
+        #pos, vel = update(pos, vel)
 
     #body, = ax.plot(pos[:,0], pos[:,1], markersize=10, c='skyblue', marker='o', ls='None')
     #beak = ax.plot(pos[:,1], markersize=4, c='black', marker='*', ls='None')
@@ -147,11 +149,4 @@ def main():
 # wywołanie main
 if __name__ == '__main__':
     main()
-
-
- # #inicjowanie pozycji ptaków
- #    pos1 = [width/2.0, height/2.0] + 25*np.random.rand(2*N).reshape(N, 2)
- #
- #    #tworzenie tablicy prędkości (znormalizowanej) boidów
- #    vel1 = np.random.uniform(-1, 1, (50, 2))
 
