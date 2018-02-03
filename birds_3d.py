@@ -131,8 +131,13 @@ def main():
     # rysowanie ptaków
     #3D plot
     fig = plt.figure()
-    #ax = plt.axes(xlim=(0, width), ylim=(0, height))
-    ax = fig.add_subplot(111, projection='3d')
+    ax = Axes3D(fig)
+    ax.set_xlim3d(0, width)
+    ax.set_ylim3d(0, height)
+
+    ax.set_zlim3d(0, height)
+    # ax = plt.axes(xlim=(0, width), ylim=(0, height))
+    # ax = fig.add_subplot(111, projection='3d')
 
     #3D - dodanie koordynaty
     body, = ax.plot([], [], [], markersize=10, c='crimson', marker='o', ls='None')
