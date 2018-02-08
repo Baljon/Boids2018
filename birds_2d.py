@@ -1,5 +1,8 @@
+#Projekt zaliczeniowy na zajęcia Python dla Kognitywistów, prowadzący: Julian Zubek
+#Autorzy: Anna Alińska, Anna Baljon, Martyna Pietrzak
+
 import numpy as np
-from math import sqrt
+from numpy.linalg import norm
 from scipy.spatial.distance import squareform, pdist
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
@@ -11,7 +14,7 @@ width, height= 800, 600
 
 
 class Birds:
-    '''klasa chmary ptaków'''
+    '''chmura ptaków'''
     def __init__(self, N):
 
         #inicjowanie pozycji ptaków
@@ -20,24 +23,27 @@ class Birds:
         self.vel = np.random.uniform(-1, 1, (N, 2))
         self.N = N
         # minimalny dystans między boidami - ZASADA 1
-        self.minDistance = 40.0
-        # promień lokalnej grupy - ZASADA 2
+        self.minDistance = 25.0
+        # promień lokalnej grupy - ZASADA 2 i 3
         self.localGroup = 50.0
         # maksymalna wielkość kolejnych "kroków" w dostosowywaniu prędkości wg zasad
-        self.maxStepVelocity = 0.02
+        self.maxStepVelocity = 0.03
         # maksymalna wielkość finalnej prędkości
         self.maxVelocity = 2.0
 
     def update(self, frameNum, body, beak):
 
         """aktualizacja o jeden krok czasowy"""
-        # matryca z odległościami między parami ptaków
+        # tablica z odległościami między parami ptaków
         self.distMatrix = squareform(pdist(self.pos))
+
         #FALLOW THE RULES
         self.vel += self.behaviourRules()
         self.matrixLim(self.vel, self.maxVelocity)
         self.pos += self.vel
+
         self.borders()
+
         #aktualizowanie pozycji
         body.set_data(self.pos.reshape(2*self.N)[::2],
                       self.pos.reshape(2*self.N)[1::2])
@@ -47,18 +53,19 @@ class Birds:
 
     # funkcja ograniczająca wartości danego wektora (żeby nie były kosmiczne)
     def vectorLim(self, vector, lim):
-        magnitude = sqrt(vector[0]**2 + vector[1]**2)
+        magnitude = norm(vector)
         if magnitude > lim:
             vector[0], vector[1] = vector[0] * lim / magnitude, vector[1] * lim / magnitude
 
-    # funkcja ograniczająca wartości wektorów w tablicy X (korzysta z funkcji vectorLim)
+    # funkcja ograniczająca wartości wektorów w matrix (korzysta z funkcji vectorLim)
     def matrixLim(self, matrix, lim):
         for vector in matrix:
             self.vectorLim(vector, lim)
 
     def borders(self):
-        """warunki brzegowe"""
-        delta = 10.0
+        """warunki brzegowe (przelatywanie przez ściany)"""
+        # zmiana współrzędnych ptaków, gdy wylatują za ścianę
+        delta = 5.0
         for coord in self.pos:
             if coord[0] > width + delta:
                 coord[0] = - delta
@@ -70,22 +77,24 @@ class Birds:
                 coord[1] = height + delta
 
 
-
     def behaviourRules(self):
+
+        vel=self.vel
 
         # ZASADA 1 - SEPARATION (minimal distance)
         distances = self.distMatrix < self.minDistance  # boolean matrix -> True, jeśli sąsiad jest za blisko
-        vel = ((self.vel * distances[:, :, None]).sum(axis=1) - distances.sum(axis=1).reshape(self.N, 1)) * (-1)
-        self.matrixLim(vel, self.maxStepVelocity)
+        vel1 = ((self.vel * distances[:, :, None]).sum(axis=1)/distances.sum(axis=1).reshape(self.N, 1)) * (-1)
+        self.matrixLim(vel1, self.maxStepVelocity)
+        vel += vel1
 
         # ZASADA 2 - ALIGNMENT
         distances = self.distMatrix < self.localGroup # szukamy lokalnej grupy
-        vel2 = (self.vel * distances[:, :, None]).sum(axis=1) - distances.sum(axis=1).reshape(self.N, 1)
+        vel2 = (self.vel * distances[:, :, None]).sum(axis=1)/distances.sum(axis=1).reshape(self.N, 1)
         self.matrixLim(vel2, self.maxStepVelocity)
         vel += vel2
 
         # ZASADA 3 - COHESION
-        vel3 = (self.pos * distances[:, :, None]).sum(axis=1) - distances.sum(axis=1).reshape(self.N, 1) - self.pos
+        vel3 = (self.pos * distances[:, :, None]).sum(axis=1)/distances.sum(axis=1).reshape(self.N, 1) - self.pos
         self.matrixLim(vel3, self.maxStepVelocity)
         vel += vel3
 
@@ -104,12 +113,12 @@ def main():
     print('Birds are being born...WAIT FOR IT')
 
     parser = argparse.ArgumentParser(description="Symulacja chmury ptaków...")
-    #dodanie argumentu - liczby ptaków
+    # możliwość dodania argumentu przez użytkownika - liczby ptaków
     parser.add_argument('--birdsN', dest='N', required=False)
     args = parser.parse_args()
 
     # definiujemy liczbę ptaków
-    N = 100
+    N = 150
     if args.N:
         N = int(args.N)
 
@@ -121,9 +130,11 @@ def main():
     fig.patch.set_facecolor('pink')
     ax = plt.axes(xlim=(0, width), ylim=(0, height))
     ax.axis('off')
+    title = ax.set_title('* Ptaki Płaskie *')
+    plt.setp(title, color='lightcoral', fontsize=14)
 
-    body, = ax.plot([], [], markersize=11, c='crimson', marker='*', ls='None')
-    beak, = ax.plot([], [], markersize=3, c='lightcoral', marker='o', ls='None')
+    body, = ax.plot([], [], markersize=10, c='crimson', marker='o', ls='None')
+    beak, = ax.plot([], [], markersize=6, c='lightcoral', marker='*', ls='None')
 
 
     anim = animation.FuncAnimation(fig, animate, fargs=(body, beak, birds), interval=50)
